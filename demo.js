@@ -1,7 +1,6 @@
 /**
  * Created by jbrown on 10/12/17.
  */
-// var g = G$('Bob', 'Costas').greet().setLang('es').greet(true).setLang('en').log('Custom Language!!!!!');
 var f = Fsmr();
 
 console.log('FINITE STATE MACHINE TEST');
