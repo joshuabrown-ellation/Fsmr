@@ -2,7 +2,10 @@
  * Created by jbrown on 10/12/17.
  */
 // var g = G$('Bob', 'Costas').greet().setLang('es').greet(true).setLang('en').log('Custom Language!!!!!');
-var f = Fsmr();
+
+
+var f = Fsmr();  // state machine without any states, even no entry state.
+var g = Fsmr('hooped',['loading'], ['video_playing','video_paused']); // you can initialize a state machine with it's entry state
 
 console.log('FINITE STATE MACHINE TEST');
 
@@ -15,12 +18,12 @@ f.addState('video_paused',      ['video_playing','stopped','ad_transitioning'], 
 f.addState('ad_transitioning',  ['ad_playing','stopped','video_playing','video_paused'],          ['loading','video_paused']);
 f.addState('ad_playing',        ['ad_paused','stopped'],                                          ['ad_paused','ad_transitioning']);
 f.addState('ad_paused',         ['ad_transitioning','stopped'],                                   ['ad_playing','ad_transitioning']);
-
-
-console.log(f.state = 'loading');
-console.log(f.state = 'video_paused');
-console.log(f.state = 'video_playing');
-console.log(f.state = 'ad_playing');
-console.log('Current state is now' + f.state);
-console.log(f.state = 'non_existing_state');
+//
+//
+// console.log(f.state = 'loading');
+// console.log(f.state = 'video_paused');
+// console.log(f.state = 'video_playing');
+// console.log(f.state = 'ad_playing');
+// console.log('Current state is now' + f.state);
+// console.log(f.state = 'non_existing_state');
 
