@@ -7,56 +7,59 @@
     return new Fsmr.init();
   };
 
-  var FSM = {  // the actual finite state machine, not accessible from outside of this scope except by methods exposed
-    entryNode: null,
-    thisCurrentNode: null,
-    states: [],    // all the states possible
-    deferred: [], // if commands cannot be executed now, check back later and see if can do them then... ?
-    get currentNode() {
-      return this.thisCurrentNode;
-    },
-    set currentNode(newCurrentNode) {
-      this.thisCurrentNode = newCurrentNode;
-    },
-    init: function (firstNode) { // set entry node
-      this.states = [firstNode];
-      this.deferred = [];
-      this.thisCurrentNode = this.entryNode = firstNode;
-    },
-    removeStateNodeByName: function(targetNodeName) {
-      // todo: comb through the callees and callers arrays inside all the states.
+  function fsmFactory() {
+    return { // the actual finite state machine, not accessible from outside of this scope except by methods exposed
+      entryNode: null,
+      thisCurrentNode: null,
+      states: [],    // all the states possible
+      deferred: [], // if commands cannot be executed now, check back later and see if can do them then... ?
+      get currentNode() {
+        return this.thisCurrentNode;
+      },
+      set currentNode(newCurrentNode) {
+        this.thisCurrentNode = newCurrentNode;
+      },
+      init: function (firstNode) { // set entry node
+        this.states = [firstNode];
+        this.deferred = [];
+        this.thisCurrentNode = this.entryNode = firstNode;
+      },
+      removeStateNodeByName: function (targetNodeName) {
+        // todo: comb through the callees and callers arrays inside all the states.
 
-      this.states = this.states.filter(function(node) { // removes nodes that have the same name as targetNodeName
-        // maybe node.canCall = node.canCall.filter((index)=> return index !== targetNodeName)
-        // maybe node.callableBy = node.callableBy.filter((index)=> return index !== targetNodeName)
-        return node.name !== targetNodeName;
-      });
-    },
-    removeStateNode: function(targetNode) {
-      // todo: comb through the callees and callers arrays inside all the states.
-      this.states = this.states.filter(function(node) { // remove nodes that have the same name as targetNode's name
-        // maybe node.canCall = node.canCall.filter((index)=> return index !== targetNode.name)
-        // maybe node.callableBy = node.callableBy.filter((index)=> return index !== targetNode.name)
-        return node.name !== targetNode.name;
-      });
-    },
-    addStateNode: function(stateName, callees, callers) {
-      var newNode;
+        this.states = this.states.filter(function (node) { // removes nodes that have the same name as targetNodeName
+          // maybe node.canCall = node.canCall.filter((index)=> return index !== targetNodeName)
+          // maybe node.callableBy = node.callableBy.filter((index)=> return index !== targetNodeName)
+          return node.name !== targetNodeName;
+        });
+      },
+      removeStateNode: function (targetNode) {
+        // todo: comb through the callees and callers arrays inside all the states.
+        this.states = this.states.filter(function (node) { // remove nodes that have the same name as targetNode's name
+          // maybe node.canCall = node.canCall.filter((index)=> return index !== targetNode.name)
+          // maybe node.callableBy = node.callableBy.filter((index)=> return index !== targetNode.name)
+          return node.name !== targetNode.name;
+        });
+      },
+      addStateNode: function (stateName, callees, callers) {
+        var newNode;
 
-      this.removeStateNodeByName(stateName);
+        this.removeStateNodeByName(stateName);
 
-      newNode =  {
-        name: stateName,
-        canCall: callees || [],     // methods that this state can execute
-        callableBy: callers || [],  // states that this state can by accessed by
-      };
-      this.states.push(newNode);
-      return newNode;
-    },
-  };
+        newNode = {
+          name: stateName,
+          canCall: callees || [],     // methods that this state can execute
+          callableBy: callers || [],  // states that this state can by accessed by
+        };
+        this.states.push(newNode);
+        return newNode;
+      },
+    }
+  }
+
 
   function fsmStateExists(stateToFind) {
-    if (FSM.states.filter(function (node) {
+    if (this.states.filter(function (node) {
       return node.name === stateToFind;
     }).length > 0) {
       return true;
@@ -64,29 +67,29 @@
   }
 
   function fsmStateChangeRequest(newState) {
-    var curNode = FSM.currentNode;
+    var curNode = this.currentNode;
     var targetNode;
 
     if (!fsmStateExists(newState)) {
-      console.warn('[Fmsr] No ' + newState + ' state in FSM');
+      console.warn('[Fmsr] No ' + newState + ' state in F.S.M.');
     }
-    targetNode = FSM.states.filter(function(node) {
+    targetNode = this.states.filter(function(node) {
       return node.name === newState;
     })[0];
     if (curNode) {
       if (curNode.canCall.indexOf(newState) !== -1) {
-        FSM.currentNode = targetNode;
+        this.currentNode = targetNode;
       } else {
         console.warn('[Fmsr] ' + curNode.name + ' state cannot access ' + newState + ' directly');
       }
     } else {
       console.warn('[Fmsr] no initial state to change, try stateMachine.init(stateNode)');
     }
-    return FSM.currentNode.name;
+    return this.currentNode.name;
   }
 
   function fsmHasCurrentState() {
-    if (FSM.currentNode) {
+    if (this.currentNode) {
       return true;
     } else {
       throw '[Fmsr] no initial state to change, try stateMachine.init(stateNode)'
@@ -95,7 +98,7 @@
 
   function fmsGetCurrentState() {
     if (fsmHasCurrentState()) {
-      return FSM.currentNode.name;
+      return this.currentNode.name;
     }
   }
 
@@ -105,11 +108,11 @@
    * @type {{init: init, addState: addState, state, state}}
    */
   Fsmr.prototype = {
-    // init: function(stateName, callees, callers) {
-    //   FSM.init(FSM.addStateNode(stateName, callees, callers));
-    // },
+    init: function(stateName, callees, callers) {
+      this.init(this.addStateNode(stateName, callees, callers));
+    },
     addState: function(stateName, callees, callers) {
-      FSM.addStateNode(stateName, callees, callers);
+      this.addStateNode(stateName, callees, callers);
     },
     get state() {
       return fmsGetCurrentState();
@@ -128,11 +131,18 @@
    */
   Fsmr.init = function(stateName, callees, callers) {
     var self = this;
-    self.init = function(stateName, callees, callers) {
-      FSM.init(FSM.addStateNode(stateName, callees, callers));
+    var FSM = fsmFactory();
+    self.initialize = function(stateName, callees, callers) {
+      FSM.init.call(self, FSM.addStateNode.call(self, stateName, callees, callers));
     };
     self.addState = function(stateName, callees, callers) {
-      FSM.addStateNode(stateName, callees, callers);
+      FSM.addStateNode.call(self, stateName, callees, callers);
+    };
+    self.states = function() {
+      return FSM.states.map(function(node) {return node;});
+    };
+    self.machine = function() {
+      return FSM;
     };
     // todo add a map method to print out available states, without giving the ability to directly modifiy the states
     this.version = '0.0.1';
