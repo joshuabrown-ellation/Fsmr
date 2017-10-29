@@ -1,11 +1,10 @@
 /**
  * Created by jbrown on 10/12/17.
  */
-// var g = G$('Bob', 'Costas').greet().setLang('es').greet(true).setLang('en').log('Custom Language!!!!!');
-
 
 var f = Fsmr();  // state machine without any states, even no entry state.
 var g = Fsmr('hooped',['loading'], ['video_playing','video_paused']); // you can initialize a state machine with it's entry state
+
 
 console.log('FINITE STATE MACHINE TEST');
 
