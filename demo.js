@@ -17,6 +17,10 @@ f.addState('video_paused',      ['video_playing','stopped','ad_transitioning'], 
 f.addState('ad_transitioning',  ['ad_playing','stopped','video_playing','video_paused'],          ['loading','video_paused']);
 f.addState('ad_playing',        ['ad_paused','stopped'],                                          ['ad_paused','ad_transitioning']);
 f.addState('ad_paused',         ['ad_transitioning','stopped'],                                   ['ad_playing','ad_transitioning']);
+
+f.setState('stopped');
+f.setState('loading');
+
 //
 //
 // console.log(f.state = 'loading');

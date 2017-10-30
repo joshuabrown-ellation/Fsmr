@@ -57,8 +57,9 @@
         console.error('failure, ' + newStateName + ' is not a state.  Try', self.getStates());
         return null;
       }
+
       if (self.currentState === null && newStateName === self.entryState.name) { // set initial current state
-        self.currentState = self.entryState;
+        self.currentState = newState;
         console.log('success! entered state machine at state', self.currentState.name);
         return self.currentState.name;
       } else if (self.currentState === null && newStateName !== self.entryState.name) {
@@ -66,18 +67,17 @@
         return null;
       }
       if (self.currentState.canCall.indexOf(newStateName) !== -1) {
-        self.currenState = newState;
-        // todo: repair this. for some reason not setting current state here, !!!!!!!!!!!!!!!!!!!!!!!
-        console.log('success!', newState, self.currentState);
+        self.currentState = newState;
       } else {
         console.error('failure, ' + self.currentState.name + ' cannot move to ' + newStateName + ' state');
       }
       return self.currentState.name;
     };
 
-    if (typeof stateName === 'string') { // make the first state, make it the entry state
-      self.init(stateName, callees, callers);
-    }
+    // todo: this bit here doesn't smell right, but putting int the if statement for currentState == null breaks it.
+    // if (typeof stateName === 'string') { // make the first state, make it the entry state
+    //   self.init(stateName, callees, callers);
+    // }
   }
 
   Fsmr.init = function(stateName, callees, callers) {
