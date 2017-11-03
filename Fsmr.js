@@ -7,6 +7,13 @@
     return new Fsmr.init(stateName, callees, callers);
   };
 
+  /**
+   *
+   * @param  {string} stateName
+   * @param {string[]} callees
+   * @param {string[]} callers
+   * @constructor
+   */
   function FSM(stateName, callees, callers) {
     var self = this;
     self.states = [];
@@ -50,13 +57,21 @@
       return currentState;
     };
     self.setState = function(newStateName) {
-      var newState = self.states.filter(function findState(state) {
-        return state.name === newStateName;
-      });
-      if (newState.length < 1) {
+      var newState,
+          newStateArray = self.states.filter(function findState(state) {
+            return state.name === newStateName;
+          });
+
+      // todo fix, some reason non existent states are just going to line 86, instead of immediately returning error.
+      // it works but the error is unhelpful
+      if (newStateArray.length < 1) {
         console.error('failure, ' + newStateName + ' is not a state.  Try', self.getStates());
         return null;
+      } else if (newStateArray.length > 1) {
+        console.error('failure, finite state machine has multiple' + newStateName + 'states!');
+        return null;
       }
+      newState = newStateArray[0];
 
       if (self.currentState === null && newStateName === self.entryState.name) { // set initial current state
         self.currentState = newState;
@@ -73,11 +88,9 @@
       }
       return self.currentState.name;
     };
-
-    // todo: this bit here doesn't smell right, but putting int the if statement for currentState == null breaks it.
-    // if (typeof stateName === 'string') { // make the first state, make it the entry state
-    //   self.init(stateName, callees, callers);
-    // }
+    if (typeof stateName === 'string' && Array.isArray(callees) && Array.isArray(callers)) {
+      self.init(stateName, callees, callers);
+    }
   }
 
   Fsmr.init = function(stateName, callees, callers) {
